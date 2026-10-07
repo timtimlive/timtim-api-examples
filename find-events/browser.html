@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Find events — TimTim.Live API</title>
+    <style>body { font-family: system-ui, sans-serif; background: #fff; max-width: 720px; margin: 0 auto; padding: 24px 16px; }</style>
+  </head>
+  <body>
+    <h1>Find events</h1>
+    <form id="form">
+      <label>City <input name="city" value="Miami" /></label>
+      <label>Category <input name="category" value="music" /></label>
+      <button type="submit">Find</button>
+    </form>
+    <p id="status" role="status"></p>
+    <ul id="list"></ul>
+    <script type="module">
+      import { findEvents } from "./find-events.mjs";
+      const form = document.getElementById("form");
+      const status = document.getElementById("status");
+      const list = document.getElementById("list");
+      async function run() {
+        status.textContent = "Loading…";
+        list.replaceChildren();
+        try {
+          const { events } = await findEvents({ city: form.city.value, category: form.category.value });
+          status.textContent = `${events.length} sample event(s). No real money.`;
+          for (const e of events) {
+            const li = document.createElement("li");
+            li.textContent = `${e.name} — ${e.display.date_label}`; // textContent: event text never becomes HTML
+            list.append(li);
+          }
+        } catch (err) {
+          status.textContent = err.message;
+        }
+      }
+      form.addEventListener("submit", (e) => { e.preventDefault(); run(); });
+      run();
+    </script>
+  </body>
+</html>

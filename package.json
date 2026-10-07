@@ -1,0 +1,23 @@
+{
+  "name": "timtim-api-examples",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Small, runnable examples of the TimTim.Live events API with plain fetch, organized by goal. Developer Preview.",
+  "license": "MIT",
+  "homepage": "https://timtim.live/developers/docs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timtimlive/timtim-api-examples.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "serve": "node serve.mjs"
+  },
+  "devDependencies": {
+    "happy-dom": "^20.14.5"
+  }
+}
