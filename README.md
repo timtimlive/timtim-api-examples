@@ -29,6 +29,9 @@ You will see sample events. Every name starts with "TEST EVENT — NO REAL MONEY
 | React to a cancelled event | [`cancellation/`](cancellation) | No |
 | Handle a refund | [`refund/`](refund) | No (illustrative messages) |
 | Keep my copy in sync | [`changed-events/`](changed-events) | Yes (test key) |
+| Show events near a hotel, nearest first | [`events-near-my-hotel/`](events-near-my-hotel) | No |
+| List live music this weekend | [`live-music-this-weekend/`](live-music-this-weekend) | No |
+| Show things to do near someone | [`things-to-do-near-me/`](things-to-do-near-me) | No |
 
 Languages: Node for most, HTML + browser JavaScript where a page is the point (`find-events/browser.html`, `display-events/index.html`). For React, see the SDK's examples in [timtim-live-events](https://github.com/timtimlive/timtim-live-events/tree/main/examples).
 
