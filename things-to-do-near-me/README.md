@@ -1,6 +1,6 @@
 # Things to do near me
 
-**Goal:** a tourism, university or community app shows what is on near the person, grouped by type — and when nothing is near, the closest cities that do have events, instead of an empty screen.
+**Goal:** a tourism, university or community app shows what is on near the person, grouped by type. When nothing is near, it shows the closest cities that do have events, never an empty screen.
 
 **Contract operations:** `listDemoEvents` / `listEvents` (`lat`, `lng`, `radius`) and `listDemoLocations` — `GET /v1/demo/locations` / `listLocations` — `GET /v1/locations`.
 

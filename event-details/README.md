@@ -2,7 +2,7 @@
 
 **Goal:** get one event by its id — for a detail page, or to check whether an event you show was cancelled.
 
-**Contract operation:** `getEvent` — `GET /v1/events/{id}`. **Needs a key.** It answers even after the event ended or was cancelled, and answers `410` (problem `event_withdrawn`) when the event is no longer shared — then stop showing it.
+**Contract operation:** `getEvent` — `GET /v1/events/{id}`. **Needs a key.** It still answers after the event ended or was cancelled. If the event is no longer shared, it answers `410` (problem `event_withdrawn`). Then stop showing it.
 
 ## Steps
 
