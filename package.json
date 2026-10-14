@@ -18,6 +18,6 @@
     "serve": "node serve.mjs"
   },
   "devDependencies": {
-    "happy-dom": "^20.14.5"
+    "happy-dom": "^20.14.6"
   }
 }
