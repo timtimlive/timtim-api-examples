@@ -3,6 +3,16 @@
 
 const BASE = globalThis.process?.env?.TIMTIM_API_BASE ?? "https://api.timtim.live/v1";
 
+/** The answer as JSON — or a plain error when it is not JSON (a proxy's 502 page, for example). */
+async function readJson(res) {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`TimTim.Live answered ${`${res.status} ${res.statusText}`.trim()} but not with JSON. Try again in a minute.`);
+  }
+}
+
 /** Straight-line distance in kilometres between two points (haversine). */
 export function distanceKm(lat1, lng1, lat2, lng2) {
   const r = (d) => (d * Math.PI) / 180;
@@ -17,7 +27,7 @@ export function distanceKm(lat1, lng1, lat2, lng2) {
 export async function eventsNearHotel({ lat, lng, radiusKm = 5, limit = 20, key }) {
   const query = new URLSearchParams({ lat: String(lat), lng: String(lng), radius: String(radiusKm), limit: String(limit) });
   const res = await fetch(`${BASE}/${key ? "events" : "demo/events"}?${query}`, { headers: key ? { Authorization: `Bearer ${key}` } : {} });
-  const body = await res.json();
+  const body = await readJson(res);
   if (!res.ok) throw new Error(`${body.title} ${body.detail ?? ""} (${body.code}, request ${body.request_id})`);
   const events = body.events
     .map((e) => ({ ...e, distance_km: e.location.lat == null || e.location.lng == null ? null : Math.round(distanceKm(lat, lng, e.location.lat, e.location.lng) * 10) / 10 }))

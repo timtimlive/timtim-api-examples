@@ -43,3 +43,26 @@ test("the node:http receiver accepts a signed delivery, refuses forged and stale
     server.close();
   }
 });
+
+test("a signed body that is not JSON is refused with 400, and the server keeps running", async () => {
+  const received = [];
+  const server = createWebhookServer({ secret: SECRET, onMessage: (m) => received.push(m) });
+  await new Promise((r) => server.listen(0, "127.0.0.1", r));
+  const { port } = server.address();
+  const post = (body, id) =>
+    fetch(`http://127.0.0.1:${port}/timtim`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "TimTim-Signature": sign(SECRET, Math.floor(Date.now() / 1000), body), "TimTim-Delivery-Id": id },
+      body,
+    });
+  try {
+    const bad = await post("not json", "whd_bad");
+    assert.equal(bad.status, 400);
+    assert.equal(await bad.text(), "body is not JSON");
+    const good = await post('{"id":"whd_ok","type":"event.changed","data":{}}', "whd_ok");
+    assert.equal(good.status, 200, "the server must still answer after a bad body");
+    assert.equal(received.length, 1);
+  } finally {
+    server.close();
+  }
+});

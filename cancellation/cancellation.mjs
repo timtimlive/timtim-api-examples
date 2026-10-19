@@ -23,11 +23,21 @@ export function actionFor(event) {
 
 const BASE = process.env.TIMTIM_API_BASE ?? "https://api.timtim.live/v1";
 
+/** The answer as JSON — or a plain error when it is not JSON (a proxy's 502 page, for example). */
+async function readJson(res) {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`TimTim.Live answered ${`${res.status} ${res.statusText}`.trim()} but not with JSON. Try again in a minute.`);
+  }
+}
+
 /** Sample events with a simulated status — no key needed. */
 export async function sampleEvents(simulate, city = "Miami") {
   const query = new URLSearchParams({ city, ...(simulate ? { simulate } : {}) });
   const res = await fetch(`${BASE}/demo/events?${query}`);
-  const body = await res.json();
+  const body = await readJson(res);
   if (!res.ok) throw new Error(`${body.title} (request ${body.request_id})`);
   return body.events;
 }

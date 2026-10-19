@@ -8,13 +8,23 @@ import { randomUUID } from "node:crypto";
 
 const BASE = process.env.TIMTIM_API_BASE ?? "https://api.timtim.live/v1";
 
+/** The answer as JSON — or a plain error when it is not JSON (a proxy's 502 page, for example). */
+async function readJson(res) {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`TimTim.Live answered ${`${res.status} ${res.statusText}`.trim()} but not with JSON. Try again in a minute.`);
+  }
+}
+
 async function call(method, path, key, { body, headers } = {}) {
   const res = await fetch(`${BASE}${path}`, {
     method,
     headers: { Authorization: `Bearer ${key}`, Accept: "application/json", ...(body ? { "Content-Type": "application/json" } : {}), ...headers },
     body: body ? JSON.stringify(body) : undefined,
   });
-  const json = await res.json();
+  const json = await readJson(res);
   if (!res.ok) throw new Error(`${method} ${path}: ${json.title} ${json.detail ?? ""} (${json.code}, request ${json.request_id})`);
   return json;
 }

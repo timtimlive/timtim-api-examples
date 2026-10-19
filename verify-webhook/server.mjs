@@ -34,11 +34,26 @@ export function createWebhookServer({ secret, onMessage = () => {} }) {
         res.writeHead(200).end("already handled"); // a retry of something we processed: say OK, do nothing
         return;
       }
+      let message;
+      try {
+        message = JSON.parse(raw);
+      } catch {
+        // Signed but not JSON: refuse it. Never let one bad body stop the whole server.
+        res.writeHead(400, { "Content-Type": "text/plain" }).end("body is not JSON");
+        return;
+      }
       if (deliveryId) seen.add(deliveryId);
-      const message = JSON.parse(raw);
       // message.type === "event.changed"    → message.data.event  OR  message.data.withdrawn
       // message.type === "earnings.changed" → message.data.earning (status reversed = refund)
-      onMessage(message);
+      try {
+        onMessage(message);
+      } catch (error) {
+        // Your handler failed: answer 500 and forget this id, so TimTim.Live's retry is handled.
+        if (deliveryId) seen.delete(deliveryId);
+        console.error("webhook handler failed:", error);
+        res.writeHead(500, { "Content-Type": "text/plain" }).end("handler failed");
+        return;
+      }
       res.writeHead(200).end("ok"); // answer within 10 seconds, or TimTim.Live retries
     });
   });

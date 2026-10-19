@@ -3,6 +3,16 @@
 
 const BASE = globalThis.process?.env?.TIMTIM_API_BASE ?? "https://api.timtim.live/v1";
 
+/** The answer as JSON — or a plain error when it is not JSON (a proxy's 502 page, for example). */
+async function readJson(res) {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`TimTim.Live answered ${`${res.status} ${res.statusText}`.trim()} but not with JSON. Try again in a minute.`);
+  }
+}
+
 const day = (d) => d.toISOString().slice(0, 10);
 
 /**
@@ -27,7 +37,7 @@ export async function liveMusicThisWeekend({ city, country, key, now } = {}) {
   if (city) query.set("city", city);
   if (country) query.set("country", country);
   const res = await fetch(`${BASE}/${key ? "events" : "demo/events"}?${query}`, { headers: key ? { Authorization: `Bearer ${key}` } : {} });
-  const body = await res.json();
+  const body = await readJson(res);
   if (!res.ok) throw new Error(`${body.title} ${body.detail ?? ""} (${body.code}, request ${body.request_id})`);
   return { from, to, mode: body.mode, events: body.events };
 }

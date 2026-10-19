@@ -23,7 +23,14 @@
       try {
         // No key: sample events from the keyless demo endpoint (CORS *, works from any website).
         const res = await fetch("https://api.timtim.live/v1/demo/events?city=Washington");
-        const body = await res.json();
+        // Read text first: a proxy's 502 page is HTML, and that should read as a plain message, not a parse error.
+        const text = await res.text();
+        let body;
+        try {
+          body = JSON.parse(text);
+        } catch {
+          throw new Error(`TimTim.Live answered ${res.status} but not with JSON. Try again in a minute.`);
+        }
         if (!res.ok) throw new Error(`${body.title} (request ${body.request_id})`);
         renderEvents(box, body.events);
       } catch (err) {

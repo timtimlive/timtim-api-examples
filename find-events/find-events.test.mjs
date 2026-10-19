@@ -25,3 +25,16 @@ test("node.mjs runs and prints events (live)", () => {
   assert.match(out, /event\(s\) in Miami \(music\), mode: test/);
   assert.match(out, /TEST EVENT — NO REAL MONEY/);
 });
+
+test("a non-JSON answer (a proxy's 502 page) becomes a plain error, not a parse error (offline)", async () => {
+  const real = globalThis.fetch;
+  globalThis.fetch = async () => new Response("<html>502 Bad Gateway</html>", { status: 502, statusText: "Bad Gateway" });
+  try {
+    await assert.rejects(findEvents({ city: "Miami" }), (error) => {
+      assert.equal(error.message, "TimTim.Live answered 502 Bad Gateway but not with JSON. Try again in a minute.");
+      return true;
+    });
+  } finally {
+    globalThis.fetch = real;
+  }
+});
